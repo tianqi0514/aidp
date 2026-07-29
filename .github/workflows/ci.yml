@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: aidp
+          POSTGRES_USER: aidp
+          POSTGRES_PASSWORD: aidp
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U aidp -d aidp"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: apps/server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run ruff format --check .
+      - run: uv run ruff check .
+      - run: uv run alembic upgrade head
+        env:
+          AIDP_DATABASE_URL: postgresql+psycopg://aidp:aidp@localhost:5432/aidp
+      - run: uv run pytest -m "not integration" --cov=aidp --cov-fail-under=80
+      - run: uv run pytest -m integration
+        env:
+          AIDP_TEST_POSTGRES_DSN: postgresql://aidp:aidp@localhost:5432/aidp
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.4.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test --run
+      - run: pnpm build
+
+  containers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose config --quiet
+      - run: docker compose build

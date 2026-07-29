@@ -2,13 +2,14 @@
 
 AIDP 是一个开源优先、可私有部署、技术栈渐进扩展的完整智能决策平台。它既连接和治理数据库、文件、API 等现有数据，也帮助没有线上管理系统的客户，把制度、流程、表单、台账等材料通过多轮 Agent 确认转化为标准流程、业务对象模型、结构化记录、知识和指标，最终打通“数据/知识/指标/Skills/MCP/规则/行动—Agent—证据与审计”闭环。
 
-当前阶段：产品定义。
+当前阶段：工程开发。首个纵向切片已经覆盖项目/Secret、PostgreSQL Catalog、元数据发现、业务对象模型和 Agent Capability Runtime。
 
 ## 文档
 
 - [AIDP 产品需求文档（PRD）](docs/PRD.md)
 - [AIDP 完整产品操作手册（设计稿）](docs/USER_GUIDE.md)
 - [IDP 能力对照审计](docs/IDP_CAPABILITY_AUDIT.md)
+- [开发与架构说明](docs/DEVELOPMENT.md)
 
 ## 核心约束
 
@@ -18,4 +19,15 @@ AIDP 是一个开源优先、可私有部署、技术栈渐进扩展的完整智
 - 数据、规则、工具调用和智能体结论均可追溯。
 - 平台核心代码和必选依赖采用开源方案；模型既可接云端 API，也可接本地 OpenAI-compatible 服务。
 
-> 当前仓库仅包含产品文档，技术实现将在 PRD 评审通过后启动。
+## 本地启动
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+- Web：http://localhost:8080
+- API：http://localhost:8000
+- OpenAPI：http://localhost:8000/docs
+
+本地开发、测试、迁移和“所有后台模块必须可被 Agent 调用”的工程契约见[开发与架构说明](docs/DEVELOPMENT.md)。
