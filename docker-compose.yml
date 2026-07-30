@@ -16,7 +16,11 @@ services:
       - aidp-postgres:/var/lib/postgresql/data
 
   server:
-    build: ./apps/server
+    build:
+      context: ./apps/server
+      args:
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+        PIP_DEFAULT_TIMEOUT: ${PIP_DEFAULT_TIMEOUT:-120}
     environment:
       AIDP_ENV: ${AIDP_ENV:-production}
       AIDP_DATABASE_URL: postgresql+psycopg://aidp:${AIDP_POSTGRES_PASSWORD:-aidp}@postgres:5432/aidp
@@ -38,6 +42,7 @@ services:
       context: ./apps/web
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
+        NPM_CONFIG_REGISTRY: ${NPM_CONFIG_REGISTRY:-https://registry.npmjs.org}
     depends_on:
       server:
         condition: service_healthy

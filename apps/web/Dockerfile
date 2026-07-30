@@ -1,5 +1,6 @@
 FROM node:22-alpine AS build
 ARG VITE_API_BASE_URL=/api/v1
+ARG NPM_CONFIG_REGISTRY=https://registry.npmjs.org
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 WORKDIR /app
 RUN corepack enable
