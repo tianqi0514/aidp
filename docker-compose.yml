@@ -1,6 +1,7 @@
 services:
   postgres:
     image: pgvector/pgvector:pg16
+    restart: unless-stopped
     environment:
       POSTGRES_DB: aidp
       POSTGRES_USER: aidp
@@ -16,6 +17,7 @@ services:
       - aidp-postgres:/var/lib/postgresql/data
 
   server:
+    restart: unless-stopped
     build:
       context: ./apps/server
       args:
@@ -38,6 +40,7 @@ services:
       - "${AIDP_SERVER_BIND:-127.0.0.1}:${AIDP_SERVER_PORT:-18000}:8000"
 
   web:
+    restart: unless-stopped
     build:
       context: ./apps/web
       args:
